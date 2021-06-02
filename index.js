@@ -11,15 +11,14 @@ class ConventionalChangelog extends Plugin {
     return options[namespace];
   }
 
-  getChangelogStream(options = {}) {
+  getChangelogStream(opts = {}) {
     const { version, previousTag, currentTag } = this.getContext();
-    return conventionalChangelog(
-      Object.assign(options, this.options),
-      { version, previousTag, currentTag },
-      {
-        debug: this.config.isDebug ? this.debug : null
-      }
-    );
+    const options = Object.assign({}, opts, this.options);
+    const context = { version, previousTag, currentTag };
+    const debug = this.config.isDebug ? this.debug : null;
+    const gitRawCommitsOpts = { debug };
+    this.debug('conventionalChangelog', { options, context, gitRawCommitsOpts });
+    return conventionalChangelog(options, context, gitRawCommitsOpts);
   }
 
   generateChangelog(options) {
