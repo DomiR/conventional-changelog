@@ -11,6 +11,21 @@ class ConventionalChangelog extends Plugin {
     return options[namespace];
   }
 
+  async getChangelog(latestVersion) {
+    const { version, previousTag, currentTag } = this.getConventionalConfig(latestVersion);
+    this.setContext({ version, previousTag, currentTag });
+    return this.generateChangelog();
+  }
+
+  getConventionalConfig(latestVersion) {
+    const { version } = this.getContext();
+    const previousTag = this.config.getContext('latestTag');
+    const tagTemplate = this.options.tagName || ((previousTag || '').match(/^v/) ? 'v${version}' : '${version}');
+    const currentTag = tagTemplate.replace('${version}', version);
+
+    return { version, previousTag, currentTag };
+  }
+
   getChangelogStream(opts = {}) {
     const { version, previousTag, currentTag } = this.getContext();
     const options = Object.assign({}, opts, this.options);
@@ -32,7 +47,11 @@ class ConventionalChangelog extends Plugin {
 
   async writeChangelog() {
     const { infile } = this.options;
-    let { changelog } = this.config.getContext();
+
+    // regenerate changelog with tags, as they are not available in previous changelog
+    let { version, tagName, latestTag} = this.config.getContext();
+    this.setContext({version, previousTag: latestTag, currentTag: tagName})
+    const changelog = await this.generateChangelog();
 
     let hasInfile = false;
     try {

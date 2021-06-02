@@ -1,6 +1,6 @@
 {
   "name": "@domir/conventional-changelog-only",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Conventional changelog plugin for release-it",
   "main": "index.js",
   "scripts": {
